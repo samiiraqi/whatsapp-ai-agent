@@ -14,7 +14,13 @@ Demo GIF placeholder: record a short screen capture of the simulator
 line below with:
 ![Demo](docs/demo.gif)
 -->
-> 🎬 **Demo GIF goes here** — a short capture of the chat simulator and
+> 🎬
+
+https://github.com/user-attachments/assets/bbf470f6-7fe0-4924-8924-2263d3097d0d
+
+
+
+— a short capture of the chat simulator and
 > live dashboard side by side.
 
 ## Features
