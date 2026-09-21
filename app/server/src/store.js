@@ -81,6 +81,31 @@ export class ConversationStore {
       .all(hashPhone(phone));
   }
 
+  listConversations() {
+    const conversations = this.db
+      .prepare("SELECT phone_hash, handoff FROM conversations")
+      .all();
+
+    const withMessages = conversations.map((row) => {
+      const messages = this.db
+        .prepare(
+          "SELECT direction, text, created_at AS createdAt FROM messages WHERE phone_hash = ? ORDER BY id"
+        )
+        .all(row.phone_hash);
+
+      return {
+        id: row.phone_hash.slice(0, 8),
+        handoff: Boolean(row.handoff),
+        lastMessageAt: messages.at(-1)?.createdAt ?? null,
+        messages,
+      };
+    });
+
+    return withMessages.sort((a, b) =>
+      (b.lastMessageAt ?? "").localeCompare(a.lastMessageAt ?? "")
+    );
+  }
+
   close() {
     this.db.close();
   }

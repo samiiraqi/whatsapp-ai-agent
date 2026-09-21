@@ -63,8 +63,11 @@ locked down accordingly:
 outside localhost; it exists purely to let the local `app/simulator`
 UI poll for the agent's replies during development.
 
-`GET /dev/leads` follows the exact same rules — same flag, same
-localhost-only check — and returns the leads stored by `LocalCrm`.
+`GET /dev/leads` and `GET /dev/conversations` follow the exact same
+rules — same flag, same localhost-only check. `/dev/conversations`
+(used by `app/dashboard`) returns each conversation's messages, so
+like the others it must never be reachable outside localhost or a
+local dev environment.
 
 ## Lead capture and the CRM adapter
 Leads go through a `CrmAdapter` interface (`saveLead(lead)`). The

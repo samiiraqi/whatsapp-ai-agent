@@ -24,20 +24,31 @@ export function createSimulatorApp({
 
     const { body, signature } = buildSignedPayload(phone, text, appSecret);
 
-    const response = await fetch(`${appServerUrl}/webhook`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Hub-Signature-256": signature,
-      },
-      body,
-    });
+    let response;
+    try {
+      response = await fetch(`${appServerUrl}/webhook`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Hub-Signature-256": signature,
+        },
+        body,
+      });
+    } catch {
+      return res.status(503).json({ error: "Server is not running" });
+    }
 
     res.sendStatus(response.status);
   });
 
   app.get("/outbox", async (req, res) => {
-    const response = await fetch(`${appServerUrl}/dev/outbox`);
+    let response;
+    try {
+      response = await fetch(`${appServerUrl}/dev/outbox`);
+    } catch {
+      return res.status(503).json({ error: "Server is not running" });
+    }
+
     if (!response.ok) {
       return res.status(response.status).json({ messages: [] });
     }

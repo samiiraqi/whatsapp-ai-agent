@@ -53,12 +53,20 @@ Browser (app/simulator UI)              WhatsApp Cloud API
                                                          stores in memory, no
                                                          network call)
 
-  GET /dev/outbox, GET /dev/leads (only when DEV_SIMULATOR=true, localhost only)
-        ^
-        |  polled every ~1.5s
-        |
-  app/simulator/server.js  -->  browser renders reply bubbles
-                                 + "Handed to human" badge
+  GET /dev/outbox, /dev/leads, /dev/conversations
+  (only when DEV_SIMULATOR=true, localhost only)
+        ^                              ^
+        |  polled every ~1.5s          |  polled every 3s
+        |                              |
+  app/simulator/server.js        app/dashboard (Vite dev server,
+        |                         proxies /dev/* straight to
+        v                         app/server, no backend of its own)
+  browser renders reply bubbles         |
+  + "Handed to human" badge             v
+                                  browser renders Overview /
+                                  Conversations / Leads tabs
+                                  ("Handed to human" badge,
+                                  Hebrew/Arabic rendered rtl)
 ```
 
 ## Pieces
@@ -104,12 +112,24 @@ Browser (app/simulator UI)              WhatsApp Cloud API
   simulator's own server (`POST /send`, `GET /outbox`); the simulator
   server builds and signs the WhatsApp-style webhook payload and
   polls `app/server`'s dev-only outbox, so `WHATSAPP_APP_SECRET`
-  never reaches the browser. See
-  [security.md](security.md#dev-endpoint-get-devoutbox) for the
-  `/dev/outbox` / `/dev/leads` guardrails.
+  never reaches the browser. If `app/server` isn't reachable, `/send`
+  and `/outbox` return a `503` with a clear JSON error instead of
+  crashing, and the chat UI shows a "Server is not running" banner.
+  See [security.md](security.md#dev-endpoint-get-devoutbox) for the
+  `/dev/outbox` / `/dev/leads` / `/dev/conversations` guardrails.
+- **Dashboard (`app/dashboard`)** — a React (Vite) app with no
+  backend of its own: the Vite dev server, bound to `127.0.0.1`,
+  proxies any `/dev/*` request straight to `app/server`
+  (`APP_SERVER_URL`). Three tabs — Overview (counts), Conversations
+  (list + message thread, `GET /dev/conversations`), Leads (table,
+  `GET /dev/leads`) — refreshed every 3 seconds. Hebrew/Arabic
+  message bubbles and table cells render with `dir="rtl"`.
+  `GET /dev/conversations` returns each conversation's short id
+  (first 8 characters of the phone hash), its language (detected
+  from the latest message), handoff status, last message time, and
+  its messages.
 
 ## Not yet built
 
-- app/dashboard (view conversations/leads)
 - a real WhatsApp `MessageSender` and Claude `BrainAdapter`
   (both off by default per CLAUDE.md)

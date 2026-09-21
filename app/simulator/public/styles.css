@@ -38,6 +38,18 @@ body {
   display: none;
 }
 
+.status-banner {
+  background: #d9534f;
+  color: #fff;
+  font-size: 13px;
+  padding: 8px 16px;
+  text-align: center;
+}
+
+.status-banner.hidden {
+  display: none;
+}
+
 .messages {
   flex: 1;
   overflow-y: auto;

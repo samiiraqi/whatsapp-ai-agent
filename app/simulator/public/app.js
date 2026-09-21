@@ -18,7 +18,17 @@ const messagesEl = document.getElementById("messages");
 const form = document.getElementById("composer");
 const input = document.getElementById("text");
 const badge = document.getElementById("handoff-badge");
+const statusBanner = document.getElementById("status-banner");
 const seenIds = new Set();
+
+function showStatus(text) {
+  statusBanner.textContent = text;
+  statusBanner.classList.remove("hidden");
+}
+
+function hideStatus() {
+  statusBanner.classList.add("hidden");
+}
 
 function addBubble(text, direction) {
   const bubble = document.createElement("div");
@@ -37,17 +47,33 @@ form.addEventListener("submit", async (event) => {
   addBubble(text, "out");
   input.value = "";
 
-  await fetch("/send", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ phone, text }),
-  });
+  try {
+    const res = await fetch("/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, text }),
+    });
+
+    if (res.status === 503) {
+      const data = await res.json().catch(() => ({}));
+      showStatus(data.error || "Server is not running");
+    }
+  } catch {
+    showStatus("Server is not running");
+  }
 });
 
 async function poll() {
   try {
     const res = await fetch("/outbox");
     const data = await res.json();
+
+    if (res.status === 503) {
+      showStatus(data.error || "Server is not running");
+      return;
+    }
+    hideStatus();
+
     let handoff = false;
 
     for (const message of data.messages ?? []) {
@@ -61,7 +87,7 @@ async function poll() {
 
     badge.classList.toggle("hidden", !handoff);
   } catch {
-    // app server or simulator may not be reachable yet; retry next tick
+    showStatus("Server is not running");
   }
 }
 

@@ -1,6 +1,7 @@
 import express from "express";
 import { isValidSignature } from "./signature.js";
 import { extractTextMessages } from "./messages.js";
+import { detectLanguage } from "./language.js";
 
 export function createApp({
   verifyToken,
@@ -70,6 +71,23 @@ export function createApp({
       }
 
       res.json({ leads: crm?.getLeads() ?? [] });
+    });
+
+    app.get("/dev/conversations", (req, res) => {
+      if (!isLocalhost(req)) {
+        return res.sendStatus(403);
+      }
+
+      const conversations = (store?.listConversations() ?? []).map(
+        (conversation) => ({
+          ...conversation,
+          language: conversation.messages.at(-1)
+            ? detectLanguage(conversation.messages.at(-1).text)
+            : "en",
+        })
+      );
+
+      res.json({ conversations });
     });
   }
 

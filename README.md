@@ -31,8 +31,23 @@ under `infra/` is written and validated but never applied.
 4. Open `http://127.0.0.1:4000` in a browser and chat with the agent.
    The simulator signs each message on the server side and posts it
    to the webhook — the browser never sees `WHATSAPP_APP_SECRET`.
+5. In a third terminal, start the dashboard:
+   ```
+   cd app/dashboard
+   npm install
+   npm run dev
+   ```
+   It listens on `http://127.0.0.1:5173` and proxies `/dev/*`
+   requests to `app/server` (see `APP_SERVER_URL` in `.env`). Open it
+   in a browser to see conversation counts, the conversation list
+   with message threads, and captured leads — all refreshed every 3
+   seconds.
 
-Run each app's tests with `npm test` inside `app/server` or
-`app/simulator`.
+All three apps read `DEV_SIMULATOR=true` from `.env`; without it,
+`app/server`'s dev-only `/dev/*` endpoints don't exist, and the
+simulator and dashboard have nothing to poll.
+
+Run each app's tests with `npm test` inside `app/server`,
+`app/simulator`, or `app/dashboard`.
 
 ## Architecture
