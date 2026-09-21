@@ -9,6 +9,7 @@ export function createApp({
   devSimulator,
   sender,
   store,
+  crm,
 }) {
   const app = express();
 
@@ -61,6 +62,14 @@ export function createApp({
       }));
 
       res.json({ messages });
+    });
+
+    app.get("/dev/leads", (req, res) => {
+      if (!isLocalhost(req)) {
+        return res.sendStatus(403);
+      }
+
+      res.json({ leads: crm?.getLeads() ?? [] });
     });
   }
 

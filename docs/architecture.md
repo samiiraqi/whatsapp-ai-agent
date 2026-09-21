@@ -24,6 +24,21 @@ Browser (app/simulator UI)              WhatsApp Cloud API
         |                                               phone is hashed (SHA-256)
         |                                               before it touches the DB
         |
+        |-- has an active order flow? --- yes --> continueOrderFlow (src/orderFlow.js)
+        |         |                                 |-- "awaiting_name" -> ask for item
+        |         |                                 |-- "awaiting_item" -> done:
+        |         |                                       crm.saveLead({ name, item,
+        |         |                                       language, createdAt,
+        |         |                                       conversationHash })
+        |         |                               (a "human?" message at either step
+        |         |                                exits the flow and hands off instead)
+        |         no
+        |         |
+        |-- wants to order? --- yes --> startOrderFlow (src/orderFlow.js)
+        |         |                      asks for name, stores flow state on
+        |         |                      the conversation row
+        |         no
+        |         |
         |-- brain.reply({ text }) -------------------> BrainAdapter
         |     returns { text, handoff }                (MockBrain today, a real
         |                                               Claude adapter later,
@@ -38,7 +53,7 @@ Browser (app/simulator UI)              WhatsApp Cloud API
                                                          stores in memory, no
                                                          network call)
 
-  GET /dev/outbox (only when DEV_SIMULATOR=true, localhost only)
+  GET /dev/outbox, GET /dev/leads (only when DEV_SIMULATOR=true, localhost only)
         ^
         |  polled every ~1.5s
         |
@@ -53,9 +68,22 @@ Browser (app/simulator UI)              WhatsApp Cloud API
   and hands each one to `onMessage`. See [security.md](security.md)
   for the signature details.
 - **ConversationEngine (`src/engine.js`)** — the glue: records the
-  incoming message, asks the brain for a reply (unless the
-  conversation is already handed off to a human), records the reply,
-  updates handoff status, and sends the reply.
+  incoming message, then, unless already handed off: continues an
+  active order flow, or starts one if the message asks to order
+  (`src/intents.js`'s `wantsToOrder`, simple EN/HE/AR keywords), or
+  otherwise asks the brain for a reply. Records the reply, updates
+  handoff status, and sends it. A "human?" message always wins over
+  an in-progress order flow.
+- **Order flow (`src/orderFlow.js`)** — two-step state machine (ask
+  name, ask item, then confirm) kept as JSON in
+  `ConversationStore`'s `flow_state` column, so it survives across
+  webhook calls per conversation. Completing it returns a lead the
+  engine hands to the `CrmAdapter`.
+- **CrmAdapter (`src/localCrm.js`)** — interface: `saveLead(lead) ->
+  void`. `LocalCrm` writes to a `leads` table in the same SQLite
+  file, no network. A real CRM can implement the same interface
+  later. See [security.md](security.md#lead-capture-and-the-crm-adapter)
+  for why it only ever sees a phone *hash*, never the number.
 - **BrainAdapter (`src/mockBrain.js`)** — interface: `reply(context)
   -> { text, handoff }`. `MockBrain` answers questions about hours,
   products/prices, and address from `config/business.json` using
@@ -78,7 +106,7 @@ Browser (app/simulator UI)              WhatsApp Cloud API
   polls `app/server`'s dev-only outbox, so `WHATSAPP_APP_SECRET`
   never reaches the browser. See
   [security.md](security.md#dev-endpoint-get-devoutbox) for the
-  `/dev/outbox` guardrails.
+  `/dev/outbox` / `/dev/leads` guardrails.
 
 ## Not yet built
 

@@ -62,3 +62,23 @@ locked down accordingly:
 `DEV_SIMULATOR=true` must never be set in a deployment reachable from
 outside localhost; it exists purely to let the local `app/simulator`
 UI poll for the agent's replies during development.
+
+`GET /dev/leads` follows the exact same rules — same flag, same
+localhost-only check — and returns the leads stored by `LocalCrm`.
+
+## Lead capture and the CRM adapter
+Leads go through a `CrmAdapter` interface (`saveLead(lead)`). The
+only implementation right now is `LocalCrm`, which writes to a local
+SQLite table and makes no network calls. A lead is stored as
+`{ name, item, language, createdAt, conversationHash }` —
+`conversationHash` is the same SHA-256 hash of the phone number used
+elsewhere in the store; the raw phone number is never written here
+either.
+
+This means a lead currently can't actually be contacted back — there
+is no phone number on file, by design, while the CRM is local-only.
+A real CRM adapter (built later behind the same `CrmAdapter`
+interface) would need the actual phone number to be useful, and at
+that point storing it requires explicit customer consent (e.g.
+captured as part of the order flow) and a real data-retention policy,
+not just the hash used for local conversation bookkeeping.

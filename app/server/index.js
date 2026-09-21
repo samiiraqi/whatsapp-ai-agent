@@ -7,6 +7,7 @@ import { ConversationEngine } from "./src/engine.js";
 import { MockBrain } from "./src/mockBrain.js";
 import { ConversationStore } from "./src/store.js";
 import { FakeMessageSender } from "./src/messageSender.js";
+import { LocalCrm } from "./src/localCrm.js";
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -16,10 +17,12 @@ const business = JSON.parse(
   fs.readFileSync(path.join(dirname, "config/business.json"), "utf8")
 );
 
-const store = new ConversationStore(path.join(dirname, "data/conversations.db"));
+const dbPath = path.join(dirname, "data/conversations.db");
+const store = new ConversationStore(dbPath);
+const crm = new LocalCrm(dbPath);
 const brain = new MockBrain(business);
 const sender = new FakeMessageSender();
-const engine = new ConversationEngine({ brain, store, sender });
+const engine = new ConversationEngine({ brain, store, sender, crm });
 
 const app = createApp({
   verifyToken: process.env.WHATSAPP_VERIFY_TOKEN,
@@ -28,6 +31,7 @@ const app = createApp({
   devSimulator: process.env.DEV_SIMULATOR === "true",
   sender,
   store,
+  crm,
 });
 
 const port = process.env.PORT || 3000;
