@@ -4,6 +4,9 @@ node_modules/
 # Secrets
 .env
 
+# Local data (SQLite database, contains hashed phone numbers + message text)
+app/server/data/*.db
+
 # Terraform
 .terraform/
 *.tfstate

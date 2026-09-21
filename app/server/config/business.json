@@ -1,0 +1,11 @@
+{
+  "name": "Sunny Corner Grocers",
+  "address": "12 Market Street, Springfield",
+  "hours": "Sun-Thu 09:00-18:00, Fri 09:00-14:00, Sat closed",
+  "currency": "USD",
+  "products": [
+    { "name": "Fresh Bread", "price": 5.5 },
+    { "name": "Orange Juice", "price": 3.0 },
+    { "name": "Cheese Platter", "price": 12.0 }
+  ]
+}

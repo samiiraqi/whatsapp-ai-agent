@@ -106,4 +106,17 @@ describe("POST /webhook", () => {
     expect(res.status).toBe(401);
     expect(onMessage).not.toHaveBeenCalled();
   });
+
+  it("rejects a signature header of the wrong length instead of crashing", async () => {
+    const onMessage = vi.fn();
+
+    const res = await request(buildApp(onMessage))
+      .post("/webhook")
+      .set("Content-Type", "application/json")
+      .set("X-Hub-Signature-256", "sha256=tooshort")
+      .send(body);
+
+    expect(res.status).toBe(401);
+    expect(onMessage).not.toHaveBeenCalled();
+  });
 });
