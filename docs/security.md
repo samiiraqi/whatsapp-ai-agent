@@ -1,0 +1,44 @@
+# Security: WhatsApp webhook
+
+## Verification handshake (GET /webhook)
+WhatsApp confirms webhook ownership with a GET request carrying
+`hub.mode`, `hub.verify_token`, and `hub.challenge`. We compare the
+token against `WHATSAPP_VERIFY_TOKEN` and only echo back the
+challenge on a match, so only WhatsApp (or someone who knows the
+token) can complete setup. Any mismatch returns 403.
+
+## Signature verification (POST /webhook)
+Every incoming webhook call is signed by WhatsApp with
+`X-Hub-Signature-256`, an HMAC-SHA256 of the raw request body using
+our app secret (`WHATSAPP_APP_SECRET`). We:
+
+- Read the body with `express.raw()` so we hash the exact bytes that
+  were sent, not a re-serialized version of the parsed JSON. Hashing
+  parsed-then-re-stringified JSON can produce different bytes
+  (key order, spacing) and cause valid requests to fail, or worse,
+  make it easy to accept a body that doesn't match what was actually
+  signed.
+- Recompute the expected signature and compare it to the header with
+  `crypto.timingSafeEqual`, not `===`. A plain string comparison
+  exits early on the first differing byte, which leaks timing
+  information an attacker could use to guess the signature
+  byte-by-byte.
+- Reject with 401 whenever the header is missing, malformed, or
+  doesn't match — and skip processing entirely in that case. Only
+  JSON is parsed after the signature check passes.
+
+## Secrets
+- `WHATSAPP_APP_SECRET` and `WHATSAPP_VERIFY_TOKEN` are read from the
+  environment, never hard-coded.
+- `.env` is git-ignored; `.env.example` only holds placeholder
+  values.
+- No log statement prints the secrets, the raw request body, or full
+  message text — only non-sensitive metadata (e.g. that a message
+  was received) would be logged, once logging is added.
+
+## Outgoing messages
+Replies go through a `MessageSender` interface. The only
+implementation right now is `FakeMessageSender`, which stores
+messages in memory and makes no network calls — there's no real
+WhatsApp credential or outbound traffic yet, which keeps the current
+attack surface limited to the webhook endpoint itself.
