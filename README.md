@@ -1,11 +1,6 @@
 # WhatsApp AI Agent
 
-<!--
-CI badge placeholder: replace OWNER/REPO below with this repo's actual
-GitHub path after the first push (the workflow won't have any runs to
-report on until then, so the badge shows "no status" until it does).
--->
-[![CI](https://github.com/OWNER/REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/OWNER/REPO/actions/workflows/ci.yml)
+[![CI](https://github.com/samiiraqi/whatsapp-ai-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/samiiraqi/whatsapp-ai-agent/actions/workflows/ci.yml)
 
 A WhatsApp customer-support agent for a small business — answers
 questions, collects orders as leads, and hands off to a human when
