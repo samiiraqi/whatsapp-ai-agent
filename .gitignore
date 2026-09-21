@@ -7,11 +7,10 @@ node_modules/
 # Local data (SQLite database, contains hashed phone numbers + message text)
 app/server/data/*.db
 
-# Terraform
+# Terraform (the .terraform.lock.hcl provider lock file IS committed)
 .terraform/
 *.tfstate
 *.tfstate.*
-.terraform.lock.hcl
 
 # OS files
 .DS_Store
