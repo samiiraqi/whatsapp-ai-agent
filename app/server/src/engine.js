@@ -48,7 +48,10 @@ export class ConversationEngine {
       return this.sendReply(from, reply, false);
     }
 
-    const { text: reply, handoff } = this.brain.reply({ text });
+    const { text: reply, handoff } = await this.brain.reply({
+      text,
+      history: this.store.getMessages(from),
+    });
     return this.sendReply(from, reply, handoff);
   }
 
