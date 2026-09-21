@@ -1,0 +1,20 @@
+# Skip list matches the "documented, not fixed" findings explained in
+# infra/azure/README.md's Checkov section. Keep the two in sync.
+framework:
+  - terraform
+skip-check:
+  - CKV_AZURE_140 # checkov still checks azurerm's pre-v5 attribute name; local_authentication_enabled = false is actually set - see README
+  - CKV_AZURE_100 # Cosmos DB customer-managed key - real recurring cost
+  - CKV2_AZURE_1 # Storage account customer-managed key - real recurring cost, internal plumbing storage only
+  - CKV_AZURE_99 # private-networking group (Cosmos/Function/Key Vault/storage): needs a maintained IP
+  - CKV_AZURE_101 # allow-list or VNet + private endpoints for every resource - same cost/complexity
+  - CKV_AZURE_221 # tradeoff as infra/aws's decision not to put the Lambda in a VPC
+  - CKV_AZURE_189 #
+  - CKV_AZURE_109 #
+  - CKV_AZURE_59 #
+  - CKV2_AZURE_33 #
+  - CKV2_AZURE_32 #
+  - CKV_AZURE_225 # Consumption plan's scale-to-zero model conflicts with zone redundancy /
+  - CKV_AZURE_212 # minimum instance count (both need a Premium plan, ~$150+/mo)
+  - CKV_AZURE_33 # low value for an internal plumbing storage account, not application data
+  - CKV_AZURE_206 # (replication tier / queue logging)
