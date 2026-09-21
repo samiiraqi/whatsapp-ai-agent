@@ -45,21 +45,19 @@ available fix is upgrading `vitest` from `^2.1.9` to `4.1.11`, which
 it flags as `isSemVerMajor: true` (a breaking change), so it's
 outside what `npm audit fix` will do on its own.
 
-## What was left, and the options
+## Resolution
 
-All 5 findings remain, tied to the single `vitest` version. Options:
+Decision: upgrade `vitest` now, as its own dedicated step, separate
+from the audit itself.
 
-1. **Leave it.** Given the findings only matter if a dev/UI server is
-   exposed, and this project never runs one, the risk is minimal.
-   Revisit next time `vitest` is touched for another reason.
-2. **Upgrade `vitest` to `^4.1.11` now** (`npm install -D vitest@^4.1.11`
-   in both `app/server` and `app/simulator`, or `npm audit fix --force`).
-   This is a major-version jump (v2 → v4) and may need config or API
-   changes — needs a test run afterward to confirm nothing broke
-   before trusting it.
-3. **Upgrade later, deliberately**, as its own small step (bump the
-   version, run the full test suite, fix anything the new major
-   version changed) rather than folding it into this audit.
+`npm install -D vitest@^4.1.11` was run in both `app/server` and
+`app/simulator` (a manual, deliberate major-version bump — not
+`npm audit fix --force`). Result:
 
-No changes were made for this section — awaiting a decision on which
-option to take.
+- **`app/server`**: `vitest ^2.1.9` → `^4.1.11`. Full test suite still
+  passes: 21/21, no code or config changes needed.
+- **`app/simulator`**: same bump. Full test suite still passes: 4/4,
+  no code or config changes needed.
+- `npm audit` now reports **0 vulnerabilities** in both projects.
+
+All 5 findings are resolved.
