@@ -99,7 +99,11 @@ Browser (app/simulator UI)              WhatsApp Cloud API
   and returns `handoff: true` with a polite message when asked for a
   human or when it doesn't recognize the question. A real Claude
   adapter can implement the same interface later without changing
-  the engine.
+  the engine. Each product's `name` in `config/business.json` is
+  `{ en, ar, he }`; a price question naming one product (matched by
+  any word of its name in the customer's language, e.g. "الخبز" for
+  "خبز طازج") gets a reply about only that product, in that language
+  — otherwise MockBrain lists all products.
 - **ConversationStore (`src/store.js`)** — SQLite storage for
   messages and handoff status, keyed by a SHA-256 hash of the phone
   number. The raw phone number is never written to the database.

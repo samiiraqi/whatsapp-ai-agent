@@ -4,8 +4,17 @@
   "hours": "Sun-Thu 09:00-18:00, Fri 09:00-14:00, Sat closed",
   "currency": "USD",
   "products": [
-    { "name": "Fresh Bread", "price": 5.5 },
-    { "name": "Orange Juice", "price": 3.0 },
-    { "name": "Cheese Platter", "price": 12.0 }
+    {
+      "name": { "en": "Fresh Bread", "ar": "خبز طازج", "he": "לחם טרי" },
+      "price": 5.5
+    },
+    {
+      "name": { "en": "Orange Juice", "ar": "عصير برتقال", "he": "מיץ תפוזים" },
+      "price": 3.0
+    },
+    {
+      "name": { "en": "Cheese Platter", "ar": "طبق جبن", "he": "מגש גבינות" },
+      "price": 12.0
+    }
   ]
 }

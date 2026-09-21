@@ -19,11 +19,43 @@ describe("MockBrain", () => {
     expect(text).toContain(business.hours);
   });
 
-  it("answers a price question", () => {
+  it("answers a price question about one product with only that product (English)", () => {
     const { text, handoff } = brain.reply({ text: "How much does the bread cost?" });
 
     expect(handoff).toBe(false);
     expect(text).toContain("Fresh Bread");
+    expect(text).toContain("5.50");
+    expect(text).not.toContain("Orange Juice");
+    expect(text).not.toContain("Cheese Platter");
+  });
+
+  it("lists all products in English when none is named", () => {
+    const { text, handoff } = brain.reply({ text: "What's on the menu?" });
+
+    expect(handoff).toBe(false);
+    expect(text).toContain("Fresh Bread");
+    expect(text).toContain("Orange Juice");
+    expect(text).toContain("Cheese Platter");
+  });
+
+  it("answers a price question about one product with only that product (Arabic)", () => {
+    const { text, handoff } = brain.reply({ text: "كم سعر الخبز؟" });
+
+    expect(handoff).toBe(false);
+    expect(text).toContain("خبز طازج");
+    expect(text).toContain("5.50");
+    expect(text).not.toContain("عصير برتقال");
+    expect(text).not.toContain("طبق جبن");
+  });
+
+  it("answers a price question about one product with only that product (Hebrew)", () => {
+    const { text, handoff } = brain.reply({ text: "מה המחיר של הלחם?" });
+
+    expect(handoff).toBe(false);
+    expect(text).toContain("לחם טרי");
+    expect(text).toContain("5.50");
+    expect(text).not.toContain("מיץ תפוזים");
+    expect(text).not.toContain("מגש גבינות");
   });
 
   it("replies in Arabic to an Arabic message", () => {
