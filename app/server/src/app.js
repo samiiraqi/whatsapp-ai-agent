@@ -2,7 +2,14 @@ import express from "express";
 import { isValidSignature } from "./signature.js";
 import { extractTextMessages } from "./messages.js";
 
-export function createApp({ verifyToken, appSecret, onMessage }) {
+export function createApp({
+  verifyToken,
+  appSecret,
+  onMessage,
+  devSimulator,
+  sender,
+  store,
+}) {
   const app = express();
 
   app.get("/webhook", (req, res) => {
@@ -42,5 +49,24 @@ export function createApp({ verifyToken, appSecret, onMessage }) {
     }
   );
 
+  if (devSimulator) {
+    app.get("/dev/outbox", (req, res) => {
+      if (!isLocalhost(req)) {
+        return res.sendStatus(403);
+      }
+
+      const messages = (sender?.sent ?? []).map((message) => ({
+        ...message,
+        handoff: store ? store.isHandoff(message.to) : false,
+      }));
+
+      res.json({ messages });
+    });
+  }
+
   return app;
+}
+
+function isLocalhost(req) {
+  return ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(req.ip);
 }

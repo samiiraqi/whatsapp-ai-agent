@@ -1,16 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
-import crypto from "node:crypto";
 import request from "supertest";
 import { createApp } from "../src/app.js";
+import { sign } from "../src/signature.js";
 
 const APP_SECRET = "test-app-secret";
 const VERIFY_TOKEN = "test-verify-token";
-
-function sign(body, secret) {
-  return (
-    "sha256=" + crypto.createHmac("sha256", secret).update(body).digest("hex")
-  );
-}
 
 function buildApp(onMessage = vi.fn()) {
   return createApp({

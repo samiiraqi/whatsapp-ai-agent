@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WhatsApp Simulator</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="chat">
+      <header class="chat-header">
+        <span>WhatsApp Simulator</span>
+        <span id="handoff-badge" class="badge hidden">Handed to human</span>
+      </header>
+      <main id="messages" class="messages"></main>
+      <form id="composer" class="composer">
+        <input
+          id="text"
+          type="text"
+          placeholder="Type a message..."
+          autocomplete="off"
+        />
+        <button type="submit">Send</button>
+      </form>
+    </div>
+    <script src="/app.js"></script>
+  </body>
+</html>

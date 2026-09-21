@@ -42,3 +42,23 @@ implementation right now is `FakeMessageSender`, which stores
 messages in memory and makes no network calls — there's no real
 WhatsApp credential or outbound traffic yet, which keeps the current
 attack surface limited to the webhook endpoint itself.
+
+## Dev endpoint: GET /dev/outbox
+The chat simulator (`app/simulator`) needs a way to read the agent's
+replies without a real WhatsApp account, so `app/server` exposes
+`GET /dev/outbox`. It is not part of the WhatsApp integration and is
+locked down accordingly:
+
+- The route is only registered at all when `DEV_SIMULATOR=true`. With
+  the default `DEV_SIMULATOR=false` (as shipped in `.env.example`),
+  the route doesn't exist and the server returns a plain 404.
+- Even when enabled, every request is checked against the connecting
+  IP and rejected with 403 unless it comes from localhost
+  (`127.0.0.1` / `::1`).
+- It returns only development data — outgoing messages already held
+  in memory by `FakeMessageSender`, plus each conversation's handoff
+  flag — never secrets or request signatures.
+
+`DEV_SIMULATOR=true` must never be set in a deployment reachable from
+outside localhost; it exists purely to let the local `app/simulator`
+UI poll for the agent's replies during development.

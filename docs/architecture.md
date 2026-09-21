@@ -3,11 +3,18 @@
 ## Message flow
 
 ```
-WhatsApp Cloud API
-        |
-        |  POST /webhook (signed with X-Hub-Signature-256)
-        v
-  app/server/src/app.js
+Browser (app/simulator UI)              WhatsApp Cloud API
+        |                                       |
+        |  POST /send { phone, text }           |  POST /webhook
+        v                                       |  (signed with
+  app/simulator/server.js                       |   X-Hub-Signature-256)
+   (signs with WHATSAPP_APP_SECRET,              |
+    secret never reaches the browser)            |
+        |                                       |
+        `-------- POST /webhook (signed) -------'
+                          |
+                          v
+                  app/server/src/app.js
         |
         |  onMessage(message)
         v
@@ -30,6 +37,13 @@ WhatsApp Cloud API
                                                          (FakeMessageSender today,
                                                          stores in memory, no
                                                          network call)
+
+  GET /dev/outbox (only when DEV_SIMULATOR=true, localhost only)
+        ^
+        |  polled every ~1.5s
+        |
+  app/simulator/server.js  -->  browser renders reply bubbles
+                                 + "Handed to human" badge
 ```
 
 ## Pieces
@@ -57,10 +71,17 @@ WhatsApp Cloud API
   text) -> Promise<{ id }>`. `FakeMessageSender` just keeps sent
   messages in memory, so development never makes a real WhatsApp API
   call.
+- **Simulator (`app/simulator`)** — a small Express server plus a
+  plain HTML/CSS/JS chat UI. The browser only ever talks to the
+  simulator's own server (`POST /send`, `GET /outbox`); the simulator
+  server builds and signs the WhatsApp-style webhook payload and
+  polls `app/server`'s dev-only outbox, so `WHATSAPP_APP_SECRET`
+  never reaches the browser. See
+  [security.md](security.md#dev-endpoint-get-devoutbox) for the
+  `/dev/outbox` guardrails.
 
 ## Not yet built
 
 - app/dashboard (view conversations/leads)
-- app/simulator (local chat UI to test conversations)
 - a real WhatsApp `MessageSender` and Claude `BrainAdapter`
   (both off by default per CLAUDE.md)
