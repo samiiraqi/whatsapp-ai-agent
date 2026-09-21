@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "test": "vitest run"
+    "test": "vitest run",
+    "reset-demo": "node scripts/reset-demo.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.127.0",

@@ -118,6 +118,8 @@ To try the real Claude brain instead of the mock, set `BRAIN=claude`
 and `ANTHROPIC_API_KEY=<your key>` in `.env` before starting the
 server (details: [docs/security.md](docs/security.md)).
 
+To wipe demo data and start fresh, stop the server and run `cd app/server && npm run reset-demo`.
+
 ## Running tests
 
 Each app has its own suite:
