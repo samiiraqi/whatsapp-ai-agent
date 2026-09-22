@@ -4,7 +4,7 @@
 
 A WhatsApp customer-support agent for a small business — answers
 questions, collects orders as leads, and hands off to a human when
-it's unsure — built and run entirely on a laptop, no real WhatsApp
+it's unsure — built and run entirely on a single machine, no real WhatsApp
 account or cloud deployment required.
 
 <!--
